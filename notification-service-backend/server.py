@@ -20,6 +20,9 @@ SG = sendgrid.SendGridAPIClient(API_KEY)
 # HEADER = {"Authorization": "Bearer "+API_KEY}
 
 
+routes = web.RouteTableDef()
+
+
 async def send_email(request, template_type, attachment_name="new.pdf"):
     data = await request.json()
 
@@ -69,6 +72,7 @@ async def send_email(request, template_type, attachment_name="new.pdf"):
         print(e)
 
 
+@routes.post("/send/email/pdf/student")
 async def send_email_student_pdf(request):
     # Specify template type
     template_type = "student_pdf"
@@ -78,6 +82,7 @@ async def send_email_student_pdf(request):
     return web.json_response({"status": "OK"})
 
 
+@routes.post("/send/email/approval/student")
 async def send_email_student_after_approval(request):
     # Specify template type
     template_type = "student_after_approval"
@@ -87,6 +92,7 @@ async def send_email_student_after_approval(request):
     return web.json_response({"status": "OK"})
 
 
+@routes.post("/send/email/allocation/poslodavac")
 async def send_email_poslodavac_after_allocation(request):
     # Specify template type
     template_type = "poslodavac_after_allocation"
@@ -96,6 +102,7 @@ async def send_email_poslodavac_after_allocation(request):
     return web.json_response({"status": "OK"})
 
 
+@routes.post("/send/email/allocation/student")
 async def send_email_student_after_allocation(request):
     # Specify template type
     template_type = "student_after_allocation"
@@ -105,25 +112,22 @@ async def send_email_student_after_allocation(request):
     return web.json_response({"status": "OK"})
 
 
-if __name__ == "__main__":
+app = None
+
+
+def run():
+    global app
+
     app = web.Application()
-    app.add_routes([web.post("/send/email/pdf/student", send_email_student_pdf)])
-    app.add_routes(
-        [web.post("/send/email/approval/student", send_email_student_after_approval)]
-    )
-    app.add_routes(
-        [
-            web.post(
-                "/send/email/allocation/poslodavac",
-                send_email_poslodavac_after_allocation,
-            )
-        ]
-    )
-    app.add_routes(
-        [
-            web.post(
-                "/send/email/allocation/student", send_email_student_after_allocation
-            )
-        ]
-    )
+    app.add_routes(routes)
+
+    return app
+
+
+async def serve():
+    return run()
+
+
+if __name__ == "__main__":
+    app = run()
     web.run_app(app, port=8081)
