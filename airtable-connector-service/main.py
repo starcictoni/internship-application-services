@@ -220,7 +220,7 @@ async def handle_patch_student_pdf(request):
                         "Dnevnik": [{"url": data["dnevnik_attachment"]}],
                         # "potvrda_prakse_url": data["potvrda_attachment"],
                         # "dnevnik_prakse_url": data["dnevnik_attachment"],
-                        "Suradnja": True if data["nastavak_rada"] is not "" else False,
+                        "Suradnja": True if data["nastavak_rada"] != "" else False,
                     },
                 }
             ]
