@@ -22,6 +22,7 @@ def get_url_from_table_name(table_name):
     return os.path.join(AIRTABLE_URL, BASE_ID, parse.quote(table_name))
 
 
+@routes.post("/post/student/after/selecting/assignments")
 async def post_student_after_selecting_assignments(request):
     data = await request.json()
     # Prepare data for last POST
