@@ -14,7 +14,10 @@ from hashlib import blake2b
 
 pdfmetrics.registerFont(TTFont("OpenSans", "OpenSans-Regular.ttf"))
 
+routes = web.RouteTableDef()
 
+
+@routes.post("/potvrda/praksa")
 async def generate_potvrda(request):
     data = await request.json()
     print(data)
@@ -129,24 +132,38 @@ async def generate_potvrda(request):
 if not os.path.exists("public"):
     os.makedirs("public")
 
+app = None
 
-app = web.Application()
-app.add_routes([web.post("/potvrda/praksa", generate_potvrda)])
-app.add_routes([web.static("/public", "./public")])
 
-cors = aiohttp_cors.setup(
-    app,
-    defaults={
-        "*": aiohttp_cors.ResourceOptions(
-            allow_credentials=True,
-            expose_headers="*",
-            allow_headers="*",
-            allow_methods="*",
-        )
-    },
-)
+def run():
+    global app
 
-for route in list(app.router.routes()):
-    cors.add(route)
+    app = web.Application()
+    app.add_routes(routes)
+    app.add_routes([web.static("/public", "./public")])
 
-web.run_app(app, port=8083)
+    cors = aiohttp_cors.setup(
+        app,
+        defaults={
+            "*": aiohttp_cors.ResourceOptions(
+                allow_credentials=True,
+                expose_headers="*",
+                allow_headers="*",
+                allow_methods="*",
+            )
+        },
+    )
+
+    for route in list(app.router.routes()):
+        cors.add(route)
+
+    return app
+
+
+async def serve():
+    return run()
+
+
+if __name__ == "__main__":
+    app = run()
+    web.run_app(app, port=8083)
