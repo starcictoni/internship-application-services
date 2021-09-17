@@ -15,6 +15,8 @@ POST_PATCH_HEADER = {
     "Content-Type": "application/json",
 }
 
+routes = web.RouteTableDef()
+
 
 def get_url_from_table_name(table_name):
     return os.path.join(AIRTABLE_URL, BASE_ID, parse.quote(table_name))
@@ -92,6 +94,7 @@ async def post_student_after_selecting_assignments(request):
     return web.json_response({"student_id": student_id, "alokacija_id": allocation_id})
 
 
+@routes.get("/get/assigned/poslodavac")
 async def get_assigned_poslodavac(request):
     # Get poslodavac id from Alociranje_studenata
     url = get_url_from_table_name("Alokacija")
@@ -127,6 +130,7 @@ async def get_assigned_poslodavac(request):
     return web.json_response(data_response)
 
 
+@routes.get("/poslodavci/array/oznaka/kompanija")
 async def poslodavci_array_oznaka_kompanija(request):
     table_name = "Poduzeća prijava prakse"
     url = os.path.join(AIRTABLE_URL, BASE_ID, parse.quote(table_name))
@@ -152,6 +156,7 @@ async def poslodavci_array_oznaka_kompanija(request):
     return web.json_response(data_response)
 
 
+@routes.patch("/student/prihvacen")
 async def handle_patch_student(request):
 
     table_name = "Prijavnice"
@@ -201,6 +206,7 @@ async def handle_patch_student(request):
     )
 
 
+@routes.patch("/student/patch/pdf")
 async def handle_patch_student_pdf(request):
     table_name = "Dnevnik prakse"
     url = os.path.join(AIRTABLE_URL, BASE_ID, parse.quote(table_name))
@@ -235,36 +241,36 @@ async def handle_patch_student_pdf(request):
     )
 
 
-app = web.Application()
-app.add_routes([web.get("/get/assigned/poslodavac", get_assigned_poslodavac)])
-app.add_routes(
-    [web.get("/poslodavci/array/oznaka/kompanija", poslodavci_array_oznaka_kompanija)]
-)
-app.add_routes([web.patch("/student/prihvacen", handle_patch_student)])
-app.add_routes([web.patch("/student/patch/pdf", handle_patch_student_pdf)])
-app.add_routes(
-    [
-        web.post(
-            "/post/student/after/selecting/assignments",
-            post_student_after_selecting_assignments,
-        )
-    ]
-)
-
-cors = aiohttp_cors.setup(
-    app,
-    defaults={
-        "*": aiohttp_cors.ResourceOptions(
-            allow_credentials=True,
-            expose_headers="*",
-            allow_headers="*",
-            allow_methods="*",
-        )
-    },
-)
-
-for route in list(app.router.routes()):
-    cors.add(route)
+app = None
 
 
-web.run_app(app, port=8082)
+def run():
+    global app
+
+    app = web.Application()
+    app.add_routes(routes)
+    cors = aiohttp_cors.setup(
+        app,
+        defaults={
+            "*": aiohttp_cors.ResourceOptions(
+                allow_credentials=True,
+                expose_headers="*",
+                allow_headers="*",
+                allow_methods="*",
+            )
+        },
+    )
+
+    for route in list(app.router.routes()):
+        cors.add(route)
+
+    return app
+
+
+async def serve():
+    return run()
+
+
+if __name__ == "__main__":
+    app = run()
+    web.run_app(app, port=8082)
