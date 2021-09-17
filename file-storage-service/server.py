@@ -38,6 +38,7 @@ def run():
 
     app = web.Application()
     app.add_routes(routes)
+    app.add_routes([web.static("/public", "./public")])
     cors = aiohttp_cors.setup(
         app,
         defaults={
