@@ -23,7 +23,7 @@ SG = sendgrid.SendGridAPIClient(API_KEY)
 routes = web.RouteTableDef()
 
 
-async def send_email(request, template_type, attachment_name="new.pdf"):
+async def send_email(request, template_type):
     data = await request.json()
 
     if request.query_string:
@@ -31,8 +31,6 @@ async def send_email(request, template_type, attachment_name="new.pdf"):
     else:
         # error -> to:email must be send via params
         pass
-
-    print(query_dict)
 
     message = Mail(
         from_email=FROM_EMAIL,
@@ -50,17 +48,14 @@ async def send_email(request, template_type, attachment_name="new.pdf"):
 
     message.dynamic_template_data = DynamicTemplateData(data)
 
-    print("MAILING: ", data)
-
     if "attachment_url" in data:
-        print(data["attachment_url"])
         file_handle = requests.get(data["attachment_url"])
         encoded_pdf = base64.b64encode(file_handle.content).decode()
 
         attachment = Attachment()
         attachment.file_content = FileContent(encoded_pdf)
         attachment.file_type = FileType("application/pdf")
-        attachment.file_name = FileName(attachment_name)
+        attachment.file_name = FileName(data["attachment_name"])
         attachment.disposition = Disposition("attachment")
         attachment.content_id = ContentId("Example Content ID")
 
@@ -82,33 +77,10 @@ async def send_email_student_pdf(request):
     return web.json_response({"status": "OK"})
 
 
-@routes.post("/send/email/approval/student")
-async def send_email_student_after_approval(request):
-    # Specify template type
-    template_type = "student_after_approval"
-
-    await send_email(request, template_type)
-
-    return web.json_response({"status": "OK"})
-
-
-@routes.post("/send/email/allocation/poslodavac")
-async def send_email_poslodavac_after_allocation(request):
-    # Specify template type
-    template_type = "poslodavac_after_allocation"
-
-    await send_email(request, template_type)
-
-    return web.json_response({"status": "OK"})
-
-
-@routes.post("/send/email/allocation/student")
-async def send_email_student_after_allocation(request):
-    # Specify template type
-    template_type = "student_after_allocation"
-
-    await send_email(request, template_type)
-
+@routes.post("/email")
+async def send_plain_email(request):
+    query_dict = dict(request.query)
+    await send_email(request, query_dict.get("template"))
     return web.json_response({"status": "OK"})
 
 

@@ -17,10 +17,9 @@ pdfmetrics.registerFont(TTFont("OpenSans", "OpenSans-Regular.ttf"))
 routes = web.RouteTableDef()
 
 
-@routes.post("/potvrda/praksa")
+@routes.post("/potvrda")
 async def generate_potvrda(request):
     data = await request.json()
-    print(data)
 
     packet = io.BytesIO()
 
