@@ -18,6 +18,7 @@ async def post_student_after_selecting_assignments(request):
         "Ime i prezime": data["ime_student"],
         "E-mail": data["email_student"],
         "Godina studija": [data["godina_studija"]],
+        "Napomena": data["napomena"],
     }
 
     zadaci_data = at.get(
