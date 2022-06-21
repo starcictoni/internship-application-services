@@ -12,6 +12,7 @@ from sendgrid.helpers.mail import (
     DynamicTemplateData,
 )
 import requests
+import env
 from aiohttp import web
 from urllib import parse
 from env import *
@@ -76,6 +77,21 @@ async def send_email_student_pdf(request):
 
     return web.json_response({"status": "OK"})
 
+@routes.get("/meta")
+async def meta(request):
+    get_routes = []
+    get_object = {}
+    for r in routes:
+            get_object = {
+                "method": "GET",
+                "url": r.path
+            }
+            get_routes.append(get_object)
+    return web.json_response(get_routes)
+
+@routes.get("/status")
+async def status(request):
+    return web.json_response({"status": "OK"})    
 
 @routes.post("/email")
 async def send_plain_email(request):
@@ -102,4 +118,4 @@ async def serve():
 
 if __name__ == "__main__":
     app = run()
-    web.run_app(app, port=8081)
+    web.run_app(app, host='127.0.0.1', port=8081)

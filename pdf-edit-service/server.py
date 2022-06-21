@@ -12,10 +12,25 @@ from urllib import parse
 import base64
 from hashlib import blake2b
 
-pdfmetrics.registerFont(TTFont("OpenSans", "OpenSans-Regular.ttf"))
+#pdfmetrics.registerFont(TTFont("OpenSans", "OpenSans-Regular.ttf"))
 
 routes = web.RouteTableDef()
 
+@routes.get("/meta")
+async def meta(request):
+    get_routes = []
+    get_object = {}
+    for r in routes:
+            get_object = {
+                "method": "GET",
+                "url": r.path
+            }
+            get_routes.append(get_object)
+    return web.json_response(get_routes)
+
+@routes.get("/status")
+async def status(request):
+    return web.json_response({"status": "OK"})   
 
 @routes.post("/potvrda")
 async def generate_potvrda(request):
@@ -159,10 +174,11 @@ def run():
     return app
 
 
+
 async def serve():
     return run()
 
 
 if __name__ == "__main__":
     app = run()
-    web.run_app(app, port=8083)
+    web.run_app(app, host='127.0.0.1', port=8083)

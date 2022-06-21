@@ -50,8 +50,24 @@ async def post_student_after_selecting_assignments(request):
 
     return web.json_response({"student_id": student_id, "alokacija_id": allocation_id})
 
+@routes.get("/meta")
+async def meta(request):
+    get_routes = []
+    get_object = {}
+    for r in routes:
+            get_object = {
+                "method": "GET",
+                "url": r.path
+            }
+            get_routes.append(get_object)
+    return web.json_response(get_routes)
+
+@routes.get("/status")
+async def status(request):
+    return web.json_response({"status": "OK"})   
 
 @routes.get("/allocation")
+#@service_task("Meta podaci") Treba definirati svoje dekoratore, pa nek filtrira servise na temelju toga, ovisno o mjestu odakle se poziva, pr. iz user taska za GET
 async def handle_get_allocation(request):
 
     response = at.get("Alokacija")
@@ -71,8 +87,8 @@ async def handle_get_allocation(request):
 
     return web.json_response(data_response)
 
-
 @routes.get("/praksa-zadaci")
+#@autocomplete("Dostupni zadaci")
 async def handle_get_zadaci(request):
     response = at.get(
         "Poduzeća prijava prakse",
@@ -85,7 +101,6 @@ async def handle_get_zadaci(request):
     ]
 
     return web.json_response(data_response)
-
 
 @routes.post("/prijavnica")
 async def handle_post_prijavnica(request):
@@ -119,7 +134,6 @@ async def handle_post_prijavnica(request):
         }
     )
 
-
 @routes.post("/dnevnik")
 async def handle_post_dnevnik(request):
     data = await request.json()
@@ -141,12 +155,13 @@ async def handle_post_dnevnik(request):
         return web.json_response({"status": "error"}, status=500)
 
 
+
 app = None
 
 
 def run():
     global app
-
+    ws = web.WebSocketResponse(autoping=True, )
     app = web.Application()
     app.add_routes(routes)
     cors = aiohttp_cors.setup(
@@ -173,4 +188,4 @@ async def serve():
 
 if __name__ == "__main__":
     app = run()
-    web.run_app(app, port=8082)
+    web.run_app(app, host='127.0.0.1', port=8082)
