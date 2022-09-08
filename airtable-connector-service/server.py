@@ -8,7 +8,6 @@ import airtable as at
 
 routes = web.RouteTableDef()
 
-
 @routes.post("/student-preference")
 async def post_student_after_selecting_assignments(request):
     data = await request.json()
@@ -49,18 +48,6 @@ async def post_student_after_selecting_assignments(request):
     allocation_id = post_response[0]["_id"]
 
     return web.json_response({"student_id": student_id, "alokacija_id": allocation_id})
-
-@routes.get("/meta")
-async def meta(request):
-    get_routes = []
-    get_object = {}
-    for r in routes:
-            get_object = {
-                "method": "GET",
-                "url": r.path
-            }
-            get_routes.append(get_object)
-    return web.json_response(get_routes)
 
 @routes.get("/status")
 async def status(request):
@@ -154,7 +141,17 @@ async def handle_post_dnevnik(request):
     except Exception:
         return web.json_response({"status": "error"}, status=500)
 
-
+@routes.get("/meta")
+async def get_meta(request):
+    meta_routes = []
+    for r in routes:
+        if r.path != '/meta':
+            route = {
+                "method": r.method,
+                "url": r.path
+            }
+            meta_routes.append(route)
+    return web.json_response(meta_routes)
 
 app = None
 

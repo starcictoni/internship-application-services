@@ -29,6 +29,17 @@ async def handle_post_file(request):
 
     return web.json_response({"status": "ok"})
 
+@routes.get("/meta")
+async def get_meta(request):
+    meta_routes = []
+    for r in routes:
+        if r.path != '/meta':
+            route = {
+                "method": r.method,
+                "url": r.path
+            }
+            meta_routes.append(route)
+    return web.json_response(meta_routes)
 
 app = None
 

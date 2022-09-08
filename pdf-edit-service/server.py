@@ -16,18 +16,6 @@ from hashlib import blake2b
 
 routes = web.RouteTableDef()
 
-@routes.get("/meta")
-async def meta(request):
-    get_routes = []
-    get_object = {}
-    for r in routes:
-            get_object = {
-                "method": "GET",
-                "url": r.path
-            }
-            get_routes.append(get_object)
-    return web.json_response(get_routes)
-
 @routes.get("/status")
 async def status(request):
     return web.json_response({"status": "OK"})   
@@ -142,6 +130,17 @@ async def generate_potvrda(request):
 
     return web.json_response(response)
 
+@routes.get("/meta")
+async def get_meta(request):
+    meta_routes = []
+    for r in routes:
+        if r.path != '/meta':
+            route = {
+                "method": r.method,
+                "url": r.path
+            }
+            meta_routes.append(route)
+    return web.json_response(meta_routes)
 
 if not os.path.exists("public"):
     os.makedirs("public")

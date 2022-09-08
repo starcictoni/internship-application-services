@@ -197,7 +197,6 @@ def notify_student_after_allocation():
 
     return jsonify(success=True)
 
-
 def get_users_slack_id(email):
     #Get all users
     users_list_response = client.users_list()
@@ -224,11 +223,9 @@ def send_dm_with_template(user, template, attachment_url=None):
 
 
 
-
-
 if __name__ == "__main__":
     logger = logging.getLogger()
     logger.setLevel(logging.DEBUG)
     logger.addHandler(default_handler)
     logger.addHandler(logging.StreamHandler())
-    app.run(host="0.0.0.0",port=8090)
+    app.run(host="0.0.0.0",port=8085)

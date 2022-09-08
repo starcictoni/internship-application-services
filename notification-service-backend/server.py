@@ -77,18 +77,6 @@ async def send_email_student_pdf(request):
 
     return web.json_response({"status": "OK"})
 
-@routes.get("/meta")
-async def meta(request):
-    get_routes = []
-    get_object = {}
-    for r in routes:
-            get_object = {
-                "method": "GET",
-                "url": r.path
-            }
-            get_routes.append(get_object)
-    return web.json_response(get_routes)
-
 @routes.get("/status")
 async def status(request):
     return web.json_response({"status": "OK"})    
@@ -99,6 +87,18 @@ async def send_plain_email(request):
     await send_email(request, query_dict.get("template"))
     return web.json_response({"status": "OK"})
 
+
+@routes.get("/meta")
+async def get_meta(request):
+    meta_routes = []
+    for r in routes:
+        if r.path != '/meta':
+            route = {
+                "method": r.method,
+                "url": r.path
+            }
+            meta_routes.append(route)
+    return web.json_response(meta_routes)
 
 app = None
 
